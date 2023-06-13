@@ -21,4 +21,4 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8080
 
 # Run the Django application
-CMD ["python", "manage.py", "runserver"]
+RUN python manage.pyrunserver
