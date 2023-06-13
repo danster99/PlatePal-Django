@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set the environment variables
-ENV DJANGO_SETTINGS_MODULE=myproject.settings
+ENV DJANGO_SETTINGS_MODULE=PlatePalDjango.settings
 ENV PYTHONUNBUFFERED=1
 
 # Expose the port on which the Django application will run
