@@ -79,10 +79,10 @@ WSGI_APPLICATION = 'PlatePalDjango.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'platePal',
+        'NAME': 'platepal',
         'USER': 'postgres',
-        'PASSWORD': 'admin1234',
-        'HOST': 'localhost',
+        'PASSWORD': 'PlatePal2023',
+        'HOST': '104.199.56.132',
         'PORT': '5432',
     }
 }
