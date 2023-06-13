@@ -2,7 +2,7 @@
 FROM python:3.9
 
 # Set the working directory in the container
-WORKDIR /PlatePalDjango
+WORKDIR /.
 
 # Copy the requirements file into the container
 COPY PlatePalDjango/requirements.txt .
