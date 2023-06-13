@@ -82,10 +82,10 @@ DATABASES = {
         'NAME': 'platepal',
         'USER': 'postgres',
         'PASSWORD': 'PlatePal2023',
-        'HOST': '10.60.224.3',
+        'HOST': '104.199.56.132',
         'PORT': '5432',
     }
-    
+
 }
 
 
