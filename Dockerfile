@@ -5,7 +5,7 @@ FROM python:3.9
 WORKDIR /PlatePalDjango
 
 # Copy the requirements file into the container
-COPY $WORKDIR/requirements.txt .
+COPY PlatePalDjango/requirements.txt .
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
