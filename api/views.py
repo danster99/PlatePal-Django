@@ -1,4 +1,3 @@
-from tkinter import Menu
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, permissions
 from api.models import Category, Restaurant, Menu, Item
