@@ -1,5 +1,8 @@
 from django.db import models
 from multiselectfield import MultiSelectField
+from django.core.files.storage import default_storage
+
+
 
 FEATURES =  ((1, 'Core'),
             (2, 'Feedback'),
@@ -35,7 +38,13 @@ class Item(models.Model):
     price = models.DecimalField(max_digits=5, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     description = models.TextField()
-    image = models.ImageField(upload_to='images/', null=True, blank=True)
+    photo = models.FileField(
+        name="b2StorageFile",
+        upload_to="uploads",
+        verbose_name="B2 Storage File",
+        storage=default_storage,  # type: ignore
+        blank=True,
+    )
     alergens = models.TextField(null=True, blank=True)
     isVegan = models.BooleanField(default=False)
     isDairyFree = models.BooleanField(default=False)

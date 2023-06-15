@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from typing import Any, Dict, List
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-600#z0+x_1z_!6ki*-h7xf#t71%%1^i7m0q4wxm21!ign%5&25
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com']
+ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost']
 
 CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com']
 
@@ -109,6 +110,25 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# BACKBLAZE_CONFIG: Dict[str, Any] = {
+#     # however you want to securely retrieve these values
+#     "application_key_id": '004e55653b341740000000003',
+#     "application_key": 'K004BuUCJAWNVq8vS075Vbg1yWxryu0',
+#     "bucket": '5e7505163543bbe384810714',
+# }
+
+STORAGES = {
+    "default": {"BACKEND": "storages.backends.s3boto3.S3StaticStorage"},
+    "staticfiles": {"BACKEND": "storages.backends.s3boto3.S3StaticStorage"}
+    }
+
+AWS_ACCESS_KEY_ID= "004e55653b341740000000003" 
+AWS_SECRET_ACCESS_KEY= "K004BuUCJAWNVq8vS075Vbg1yWxryu0"
+AWS_S3_REGION_NAME= 'us-west-004'
+AWS_S3_ENDPOINT_URL= 'https://s3.us-west-004.backblazeb2.com'
+AWS_STORAGE_BUCKET_NAME= 'platepal'
+
 
 
 # Internationalization
