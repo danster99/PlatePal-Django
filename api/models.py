@@ -31,7 +31,7 @@ class Category(models.Model):
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
     isFood = models.BooleanField(default=True)
     def __str__(self):
-        return self.name
+        return self.menu.restaurant.name +" - "+ self.name
 
 def upload_to(instance, filename):
     restaurant_name = instance.category.menu.restaurant.name.lower().replace(" ", "_")
