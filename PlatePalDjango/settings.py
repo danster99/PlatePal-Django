@@ -28,6 +28,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com']
 
+CSRF_TRUSTED_ORIGINS = ['plate-pal-97cd0667892d.herokuapp.com']
+
 
 # Application definition
 
