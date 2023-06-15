@@ -14,15 +14,21 @@ class Restaurant(models.Model):
     address = models.CharField(max_length=100)
     phone = models.CharField(max_length=100)
     website = models.CharField(max_length=100)
+    def __str__(self):
+        return self.name
 
 class Menu(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     features = MultiSelectField(choices=FEATURES, max_length=10)
+    def __str__(self):
+        return self.restaurant.name
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
     isFood = models.BooleanField(default=True)
+    def __str__(self):
+        return self.name
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
@@ -40,3 +46,6 @@ class Item(models.Model):
     clicks7d = models.IntegerField(default=0)
     clicks30d = models.IntegerField(default=0)
     isAvailable = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
