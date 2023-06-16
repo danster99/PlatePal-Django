@@ -29,7 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost', 'platepal.eu', 'www.platepal.eu', 'platepal.eu.']
 
-CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com']
+CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com', 'https://platepal.eu', 'https://www.platepal.eu', 'https://platepal.eu.']
 
 
 # Application definition
