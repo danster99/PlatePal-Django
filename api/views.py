@@ -1,8 +1,11 @@
+import json
 from django.forms import model_to_dict
+from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, permissions
 from api.models import Category, Restaurant, Menu, Item
 from drf_spectacular.utils import extend_schema
+from rest_framework.decorators import action
 import re
 
 class RestaurantSerializer(serializers.ModelSerializer):
@@ -39,6 +42,12 @@ class MenuViewSet(viewsets.ModelViewSet):
 	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	http_method_names = ['get']
 
+	@action(methods=['get'], detail=True, url_path='categories', url_name='categories')
+	def get_catgories(self, request, pk=None):
+		obj = Category.objects.filter(menu=Menu.objects.get(pk=pk))
+		serializer = CategorySerializer(obj, many=True)
+		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+
 class CategorySerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Category
@@ -55,6 +64,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
 	serializer_class = CategorySerializer
 	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	http_method_names = ['get']
+
+	@action(methods=['get'], detail=True, url_path='items', url_name='items')
+	def get_items(self, request, pk=None):
+		items = Item.objects.filter(category=Category.objects.get(pk=pk))
+		serializer = ItemSerializer(items, many=True)
+		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
 
 class ItemSerializer(serializers.ModelSerializer):
 	class Meta:
