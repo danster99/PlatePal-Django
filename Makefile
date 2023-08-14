@@ -1,4 +1,4 @@
-MANAGE_PY := python PlatePalDjango/manage.py
+MANAGE_PY := python3 manage.py
 FRONTEND_DIR := lcp-frontend
 
 # Commands
