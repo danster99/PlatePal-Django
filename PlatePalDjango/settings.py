@@ -27,6 +27,8 @@ SECRET_KEY = 'django-insecure-600#z0+x_1z_!6ki*-h7xf#t71%%1^i7m0q4wxm21!ign%5&25
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost', 'platepal.eu', 'www.platepal.eu', 'platepal.eu.']
 
 CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com', 'https://platepal.eu', 'https://www.platepal.eu', 'https://platepal.eu.']
@@ -35,6 +37,7 @@ CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com', 'https:/
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'api.apps.ApiConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'hijack.middleware.HijackUserMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'PlatePalDjango.urls'
