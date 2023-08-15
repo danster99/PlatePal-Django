@@ -29,6 +29,11 @@ DEBUG = True
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+# CORS_ORIGIN_ALLOW_ALL = False
+# CORS_ORIGIN_WHITELIST = (
+#   'http://localhost:8000',
+# )
+
 ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost', 'platepal.eu', 'www.platepal.eu', 'platepal.eu.']
 
 CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com', 'https://platepal.eu', 'https://www.platepal.eu', 'https://platepal.eu.']
@@ -105,6 +110,7 @@ DATABASES = {
         'NAME': 'platepal',
     }
 }
+CONN_MAX_AGE = 0
 
 import dj_database_url
 db_from_env = dj_database_url.config(conn_max_age=600)
