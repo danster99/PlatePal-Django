@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from typing import Any, Dict, List
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -92,27 +93,25 @@ WSGI_APPLICATION = 'PlatePalDjango.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'd3vf0h5pdg472n',
-#         'USER': 'qzlxvzvgwqvtqb',
-#         'PASSWORD': 'ff0edaa1e9d1d28eafc41f119fba6af9a6f26e302ef9a32d481004cd0d324fcf',
-#         'HOST': 'ec2-52-215-68-14.eu-west-1.compute.amazonaws.com',
-#         'PORT': '5432',
-#     }
-
-# }
-
-DATABASES = {  
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'platepal',
+        'NAME': 'db49ukjrioveda',
+        'USER': 'njqcdnhutfygdx',
+        'PASSWORD': 'fe6ff6791cef7272819e042052a553a3edd7d94dcdc48ee9438f7932ce508319',
+        'HOST': 'ec2-52-50-90-145.eu-west-1.compute.amazonaws.com',
+        'PORT': '5432',
     }
 }
-CONN_MAX_AGE = 0
 
-import dj_database_url
+# DATABASES = {  
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'platepal',
+#     }
+# }
+
+
 db_from_env = dj_database_url.config(conn_max_age=600)
 DATABASES['default'].update(db_from_env)
 
