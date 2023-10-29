@@ -7,6 +7,9 @@ from api.models import Category, Restaurant, Menu, Item, Order, Cart, Table
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 import re
+from django.db import transaction
+
+
 
 class RestaurantSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -114,6 +117,7 @@ class OrderSerializer(serializers.ModelSerializer):
 			"total",
 			"payment_method",
 			"tip",
+			"table",
 		]
 
 @extend_schema(tags=["Order"])
@@ -131,8 +135,7 @@ class TableSerializer(serializers.ModelSerializer):
 			"id",
 			"restaurant",
 			"number",
-			"seats",
-			"cart"
+			"seats"
 		]
 
 @extend_schema(tags=["Table"])
@@ -142,28 +145,17 @@ class TableViewSet(viewsets.ModelViewSet):
 	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	http_method_names = ['get','post', 'delete']
 
-	@action(methods=['post'], detail=True, url_path='new_cart', url_name='cart')
+	@action(methods=['post'], detail=True, url_path='new_cart', url_name='new_cart')
 	def createCart(self, request, pk=None):
 		table = Table.objects.get(pk=pk)
-		print(table)
 		try:
-			cart = table.cart
-			if cart.status == "Closed":
-				cart = Cart.objects.create()
-				cart.save()
-				table.cart = cart
-				table.save()
-				return HttpResponse(json.dumps(model_to_dict(cart)), content_type="application/json")
-			else:
-				raise serializers.ValidationError("An open cart already exists")
+			cart = Cart.objects.get(table=table)
+			return HttpResponse(json.dumps(model_to_dict(cart)), content_type="application/json")
 		except Cart.DoesNotExist:
-			print("Cart does not exist")
-			cart = Cart.objects.create()
-			cart.save()
+			cart = Cart.objects.create(table=table)
 			table.cart = cart
 			table.save()
 			return HttpResponse(json.dumps(model_to_dict(cart)), content_type="application/json")
-
 	
 
 class CartSerializer(serializers.ModelSerializer):
@@ -173,6 +165,7 @@ class CartSerializer(serializers.ModelSerializer):
 			"id",
 			"items",
 			"total",
+			"table",
 			"status",
 			"table"
 		]
@@ -181,25 +174,56 @@ class CartViewSet(viewsets.ModelViewSet):
 	queryset = Cart.objects.all().order_by("id")
 	serializer_class = CartSerializer
 	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-	http_method_names = ['get','post', 'delete']
+	http_method_names = ['get','post', 'delete', 'put']
 
-	@action(methods=['put'], detail=True, url_path='cart', url_name='cart')
+	@action(methods=['put'], detail=True, url_path='add_item', url_name='add_item')
+	@transaction.atomic
 	def addItem(self, request, pk=None):
 		cart = Cart.objects.get(pk=pk)
+		if cart.status != "Open":
+			raise serializers.ValidationError("Cart is not open")
 		item = Item.objects.get(pk=request.data["item"])
-		cart.items.add(item)
+		cart.items.append(item.id)
 		cart.total += item.price
 		cart.save()
-		return HttpResponse(json.dumps(model_to_dict(cart)), content_type="application/json")
+		return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 	
-	@action(methods=['put'], detail=True, url_path='cart', url_name='cart')
+	@action(methods=['put'], detail=True, url_path='remove_item', url_name='remove_item')
+	@transaction.atomic
 	def removeItem(self, request, pk=None):
 		cart = Cart.objects.get(pk=pk)
+		if cart.status != "Open":
+			raise serializers.ValidationError("Cart is not open")
 		item = Item.objects.get(pk=request.data["item"])
-		if item in cart.items.all():
-			cart.items.remove(item)
+		if item.id in cart.items:
+			cart.items.remove(item.id)
 			cart.total -= item.price
 			cart.save()
-			return HttpResponse(json.dumps(model_to_dict(cart)), content_type="application/json")
+			return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 		else:
 			raise serializers.ValidationError("Item not in cart")
+		
+	@action(methods=['post'], detail=True, url_path='checkout', url_name='checkout')
+	@transaction.atomic
+	def checkout(self, request, pk=None):
+		cart = Cart.objects.get(pk=pk)
+		cart.status = "Checkout"
+		cart.save()
+		return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
+	
+	@action(methods=['post'], detail=True, url_path='close', url_name='close')
+	@transaction.atomic
+	def pay(self, request, pk=None):
+		cart = Cart.objects.get(pk=pk)
+		cart.status = "Closed"
+		cart.save()
+		table = Table.objects.get(cart=cart)
+		Order.objects.create(
+			restaurant=table.restaurant,
+			table=table,
+			items=cart.items,
+			total=cart.total,
+			payment_method=request.data["payment_method"],
+			tip=request.data["tip"]
+		) 
+		return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")

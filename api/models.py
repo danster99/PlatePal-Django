@@ -85,37 +85,36 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+cart_status = (
+    ("Open", "Open"),
+    ("Checkout", "Checkout"),
+    ("Closed", "Closed"),
+)
 
+class Table(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=False)
+    number = models.IntegerField(null=False, blank=False)
+    seats = models.IntegerField(null=False, blank=False)
 
+class Cart(models.Model):
+    items = ArrayField(models.IntegerField(), default=list)
+    total = models.DecimalField(max_digits=5, decimal_places=2, null=False, default=0)
+    status = models.CharField(choices=cart_status, null=False, default="Open")
+    table = models.OneToOneField(Table, on_delete=models.CASCADE, null=True, blank=True)
 
-
+    def empty(self):
+        self.items.clear()
+        self.total = 0
+        self.status = "Open"
+        self.save()
 
 class Order(models.Model):
-    id = models.AutoField(primary_key=True)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=False)
-    items = models.ManyToManyField(Item, blank=False)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True)
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, null=True)
+    items = ArrayField(models.IntegerField(), default=list)
     total = models.DecimalField(max_digits=5, decimal_places=2, null=False, blank=False)
     payment_method = models.CharField(choices=PAYMENT_METHODS, null=False, blank=False)
     tip = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return self.restaurant.name + "-" + self.id + " - " + str(self.total)
-
-cart_status = (
-    ("Open", "Open"),
-    ("Checkout", "Checkout"),
-    ("Paid", "Paid"),
-    ("Closed", "Closed"),
-)
-class Cart(models.Model):
-    id = models.AutoField(primary_key=True)
-    items = models.ManyToManyField(Item, blank=False)
-    total = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    status = models.CharField(choices=cart_status, null=False, blank=False)
-
-class Table(models.Model):
-    id = models.AutoField(primary_key=True)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=False)
-    cart = models.OneToOneField(Cart, on_delete=models.CASCADE, null=True, blank=True)
-    number = models.IntegerField(null=False, blank=False)
-    seats = models.IntegerField(null=False, blank=False)
