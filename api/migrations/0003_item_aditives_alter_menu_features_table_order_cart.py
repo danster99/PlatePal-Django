@@ -12,6 +12,17 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='menu',
+            name='features',
+            field=django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), default=list, size=6),
+        ),
+        migrations.AddField(
+            model_name='item',
+            name='aditives',
+            field=models.TextField(blank=True, null=True),
+        ),
+
         migrations.CreateModel(
             name='Table',
             fields=[

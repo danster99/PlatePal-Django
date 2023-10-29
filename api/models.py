@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.core.files.storage import default_storage
 from django.contrib.postgres.fields import ArrayField
@@ -82,9 +83,14 @@ class Item(models.Model):
     clicks7d = models.IntegerField(default=0)
     clicks30d = models.IntegerField(default=0)
     isAvailable = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+    
+
+
 cart_status = (
     ("Open", "Open"),
     ("Checkout", "Checkout"),
@@ -100,12 +106,16 @@ class Cart(models.Model):
     items = ArrayField(models.IntegerField(), default=list)
     total = models.DecimalField(max_digits=5, decimal_places=2, null=False, default=0)
     status = models.CharField(choices=cart_status, null=False, default="Open")
-    table = models.OneToOneField(Table, on_delete=models.CASCADE, null=True, blank=True)
+    table = models.OneToOneField(Table, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
 
     def empty(self):
         self.items.clear()
         self.total = 0
         self.status = "Open"
+        self.created_at = datetime.now()
+        self.closed_at = None
         self.save()
 
 class Order(models.Model):
@@ -115,6 +125,8 @@ class Order(models.Model):
     total = models.DecimalField(max_digits=5, decimal_places=2, null=False, blank=False)
     payment_method = models.CharField(choices=PAYMENT_METHODS, null=False, blank=False)
     tip = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    time_at_table = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.restaurant.name + "-" + self.id + " - " + str(self.total)

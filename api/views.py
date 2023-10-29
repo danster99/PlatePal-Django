@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 import re
 from django.db import transaction
+from datetime import datetime
 
 
 
@@ -118,6 +119,8 @@ class OrderSerializer(serializers.ModelSerializer):
 			"payment_method",
 			"tip",
 			"table",
+			"restaurant",
+			"time_at_table",
 		]
 
 @extend_schema(tags=["Order"])
@@ -150,12 +153,14 @@ class TableViewSet(viewsets.ModelViewSet):
 		table = Table.objects.get(pk=pk)
 		try:
 			cart = Cart.objects.get(table=table)
-			return HttpResponse(json.dumps(model_to_dict(cart)), content_type="application/json")
+			if cart.status == "Closed":
+				cart.empty()
+			return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 		except Cart.DoesNotExist:
 			cart = Cart.objects.create(table=table)
 			table.cart = cart
 			table.save()
-			return HttpResponse(json.dumps(model_to_dict(cart)), content_type="application/json")
+			return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 	
 
 class CartSerializer(serializers.ModelSerializer):
@@ -167,7 +172,9 @@ class CartSerializer(serializers.ModelSerializer):
 			"total",
 			"table",
 			"status",
-			"table"
+			"table",
+			"created_at",
+			"closed_at"
 		]
 @extend_schema(tags=["Cart"])
 class CartViewSet(viewsets.ModelViewSet):
@@ -215,15 +222,20 @@ class CartViewSet(viewsets.ModelViewSet):
 	@transaction.atomic
 	def pay(self, request, pk=None):
 		cart = Cart.objects.get(pk=pk)
+		cart.closed_at = datetime.now(cart.created_at.tzinfo)
 		cart.status = "Closed"
 		cart.save()
 		table = Table.objects.get(cart=cart)
+		start = cart.created_at
+		end = cart.closed_at
+		tat = (end-start).total_seconds() / 60
 		Order.objects.create(
 			restaurant=table.restaurant,
 			table=table,
 			items=cart.items,
 			total=cart.total,
 			payment_method=request.data["payment_method"],
-			tip=request.data["tip"]
+			tip=request.data["tip"],
+			time_at_table= tat
 		) 
 		return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
