@@ -95,12 +95,17 @@ WSGI_APPLICATION = 'PlatePalDjango.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'dj_db_conn_pool.backends.postgresql',
         'NAME': 'db49ukjrioveda',
         'USER': 'njqcdnhutfygdx',
         'PASSWORD': 'fe6ff6791cef7272819e042052a553a3edd7d94dcdc48ee9438f7932ce508319',
         'HOST': 'ec2-52-50-90-145.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
+		'POOL_OPTIONS' : {
+            'POOL_SIZE': 2,
+            'MAX_OVERFLOW': 2,
+            'RECYCLE': 24 * 60 * 60
+        }
     }
 }
 
