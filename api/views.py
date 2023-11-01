@@ -3,12 +3,13 @@ from django.forms import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, permissions
-from api.models import Category, Restaurant, Menu, Item, Order, Cart, Table
+from api.models import Category, Restaurant, Menu, Item, Order, Cart, Story, Table
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 import re
 from django.db import transaction
 from datetime import datetime
+from django.db import connection
 
 
 
@@ -50,6 +51,14 @@ class MenuViewSet(viewsets.ModelViewSet):
 	def get_catgories(self, request, pk=None):
 		obj = Category.objects.filter(menu=Menu.objects.get(pk=pk))
 		serializer = CategorySerializer(obj, many=True)
+		connection.close()
+		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+	
+	@action(methods=['get'], detail=True, url_path='stories', url_name='stories')
+	def get_stories(self, request, pk=None):
+		obj = Story.objects.filter(menu=Menu.objects.get(pk=pk))
+		serializer = StorySerializer(obj, many=True)
+		connection.close()
 		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -73,6 +82,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 	def get_items(self, request, pk=None):
 		items = Item.objects.filter(category=Category.objects.get(pk=pk))
 		serializer = ItemSerializer(items, many=True)
+		connection.close()
 		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
 
 class ItemSerializer(serializers.ModelSerializer):
@@ -155,11 +165,13 @@ class TableViewSet(viewsets.ModelViewSet):
 			cart = Cart.objects.get(table=table)
 			if cart.status == "Closed":
 				cart.empty()
+			connection.close()
 			return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 		except Cart.DoesNotExist:
 			cart = Cart.objects.create(table=table)
 			table.cart = cart
 			table.save()
+			connection.close()
 			return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 	
 
@@ -193,6 +205,7 @@ class CartViewSet(viewsets.ModelViewSet):
 		cart.items.append(item.id)
 		cart.total += item.price
 		cart.save()
+		connection.close()
 		return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 	
 	@action(methods=['put'], detail=True, url_path='remove_item', url_name='remove_item')
@@ -206,8 +219,10 @@ class CartViewSet(viewsets.ModelViewSet):
 			cart.items.remove(item.id)
 			cart.total -= item.price
 			cart.save()
+			connection.close()
 			return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 		else:
+			connection.close()
 			raise serializers.ValidationError("Item not in cart")
 		
 	@action(methods=['post'], detail=True, url_path='checkout', url_name='checkout')
@@ -216,6 +231,7 @@ class CartViewSet(viewsets.ModelViewSet):
 		cart = Cart.objects.get(pk=pk)
 		cart.status = "Checkout"
 		cart.save()
+		connection.close()
 		return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
 	
 	@action(methods=['post'], detail=True, url_path='close', url_name='close')
@@ -237,5 +253,34 @@ class CartViewSet(viewsets.ModelViewSet):
 			payment_method=request.data["payment_method"],
 			tip=request.data["tip"],
 			time_at_table= tat
-		) 
+		)
+		connection.close()
 		return HttpResponse(json.dumps(model_to_dict(cart), default=str), content_type="application/json")
+	
+
+class StorySerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Story
+		fields = [
+			"id",
+			"menu",
+			"title",
+			"description",
+			"b2StorageFile",
+			"active",
+			"created_at",
+		]
+
+	def create(self, validated_data):
+		filename = validated_data["b2StorageFile"].name
+		if( re.search("^(?!.*\.\.)[\w-]+\.(svg|jpe?g|png|gif|bmp)$", filename) == False):
+			raise serializers.ValidationError("Invalid filename")
+		return super().create(validated_data)
+
+	
+@extend_schema(tags=["Story"])
+class StoryViewSet(viewsets.ModelViewSet):
+	queryset = Story.objects.all().order_by("id")
+	serializer_class = StorySerializer 
+	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+	http_method_names = ['get', 'post', 'delete', 'put']

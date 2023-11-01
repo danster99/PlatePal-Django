@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from api.views import CategoryViewSet, MenuViewSet, RestaurantViewSet, ItemViewSet, OrderViewSet, TableViewSet, CartViewSet
+from api.views import CategoryViewSet, MenuViewSet, RestaurantViewSet, ItemViewSet, OrderViewSet, TableViewSet, CartViewSet, StoryViewSet
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework import routers
 
@@ -28,6 +28,7 @@ router.register(r'item', ItemViewSet)
 router.register(r'order', OrderViewSet)
 router.register(r'table', TableViewSet)
 router.register(r'cart', CartViewSet)
+router.register(r'story', StoryViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
