@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'hijack',
-    'hijack.contrib.admin'
+    'hijack.contrib.admin',
+    'django-filter',
 ]
 
 MIDDLEWARE = [
