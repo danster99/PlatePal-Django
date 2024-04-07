@@ -3,13 +3,14 @@ from django.forms import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, permissions
-from api.models import Category, Restaurant, Menu, Item, Order, Cart, Story, Table
+from api.models import Category, Restaurant, Menu, Item, Order, Cart, Story, Table, Review
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 import re
 from django.db import transaction
 from datetime import datetime
 from django.db import connection
+from django_filters import rest_framework as filters
 
 
 
@@ -274,5 +275,34 @@ class StorySerializer(serializers.ModelSerializer):
 class StoryViewSet(viewsets.ModelViewSet):
 	queryset = Story.objects.all().order_by("id")
 	serializer_class = StorySerializer 
+	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+	http_method_names = ['get', 'post', 'delete', 'put']
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Review
+		fields = [
+			"id",
+			"menu",
+			"rating_food",
+			"rating_drinks",
+			"rating_service",
+			"rating_experience",
+			"comment",
+			"created_at",
+	]
+		
+class ReviewFilter(filters.FilterSet):
+	class Meta:
+		model = Review
+		fields = {
+			"menu": ["exact"],
+		}
+@extend_schema(tags=["Review"])
+class ReviewViewSet(viewsets.ModelViewSet):
+	queryset = Review.objects.all().order_by("id")
+	serializer_class = ReviewSerializer
+	filterset_class = ReviewFilter
 	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	http_method_names = ['get', 'post', 'delete', 'put']

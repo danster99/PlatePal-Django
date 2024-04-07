@@ -158,4 +158,17 @@ class Story(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.restaurant.name + "-" + self.title
+        return self.menu.restaurant.name + "-" + self.title
+    
+
+class Review(models.Model):
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    rating_food = models.IntegerField(null=False, blank=False)
+    rating_drinks = models.IntegerField(null=False, blank=False)
+    rating_service = models.IntegerField(null=False, blank=False)
+    rating_experience = models.IntegerField(null=False, blank=False)
+    comment = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.menu.restaurant.name + "-reviewID-" + self.id
