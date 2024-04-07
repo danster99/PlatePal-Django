@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'hijack',
     'hijack.contrib.admin',
-    'django-filters',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
