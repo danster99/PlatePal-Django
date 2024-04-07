@@ -10,7 +10,7 @@ import re
 from django.db import transaction
 from datetime import datetime
 from django.db import connection
-from django_filters import rest_framework as filters
+import django_filters as filters
 
 
 
@@ -294,11 +294,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 	]
 		
 class ReviewFilter(filters.FilterSet):
+	# menu = filters.NumberFilter(field_name="menu")
 	class Meta:
 		model = Review
-		fields = {
-			"menu": ["exact"],
-		}
+		fields = {"menu":["exact"]}
 @extend_schema(tags=["Review"])
 class ReviewViewSet(viewsets.ModelViewSet):
 	queryset = Review.objects.all().order_by("id")
