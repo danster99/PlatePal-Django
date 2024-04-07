@@ -10,7 +10,7 @@ import re
 from django.db import transaction
 from datetime import datetime
 from django.db import connection
-import django_filters as filters
+from rest_framework import django_filters as filters
 
 
 
