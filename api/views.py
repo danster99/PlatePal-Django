@@ -131,7 +131,7 @@ class ItemSerializer(serializers.ModelSerializer):
 			"isAvailable"
 		]
 	def get_photo(self, obj):
-		return obj.b2StorageFile.name
+		return obj.b2StorageFile.url
 	
 	def create(self, validated_data):
 		filename = validated_data["b2StorageFile"].name
