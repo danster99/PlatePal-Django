@@ -3,7 +3,7 @@ from django.forms import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, permissions
-from api.models import Category, Restaurant, Menu, Item, Order, Cart, Story, Table, Review
+from api.models import Category, Restaurant, Menu, Item, Order, Cart, Story, Table, Review, HomepageCard
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 import re
@@ -60,6 +60,32 @@ class MenuViewSet(viewsets.ModelViewSet):
 		obj = Story.objects.filter(menu=Menu.objects.get(pk=pk))
 		serializer = StorySerializer(obj, many=True)
 		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+	
+	@action(methods=['get'], detail=True, url_path='items', url_name='items')
+	def get_items(self, request, pk=None):
+		response = dict()
+		food = dict()
+		drinks = dict()
+		categories = Category.objects.filter(menu=Menu.objects.get(pk=pk))
+		for category in categories:
+			if category.isFood:
+				items = Item.objects.filter(category=category)
+				serializer = ItemSerializer(items, many=True)
+				food[category.name] = serializer.data
+			else:
+				items = Item.objects.filter(category=category)
+				serializer = ItemSerializer(items, many=True)
+				drinks[category.name] = serializer.data
+		response["food"] = food
+		response["drinks"] = drinks
+		serializer = ItemSerializer(items, many=True)
+		return HttpResponse(json.dumps(response), content_type="application/json")
+	
+	@action(methods=['get'], detail=True, url_path='homepageCards', url_name='homepage_cards')
+	def get_homepage_cards(self, request, pk=None):
+		obj = HomepageCard.objects.filter(menu=Menu.objects.get(pk=pk))
+		serializer = HomepageCardSerializer(obj, many=True)
+		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
 
 class CategorySerializer(serializers.ModelSerializer):
 	class Meta:
@@ -85,6 +111,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
 
 class ItemSerializer(serializers.ModelSerializer):
+	photo = serializers.SerializerMethodField()
 	class Meta:
 		model = Item
 		fields = [
@@ -93,7 +120,7 @@ class ItemSerializer(serializers.ModelSerializer):
 			"price",
 			"category",
 			"description",
-			"b2StorageFile",
+			"photo",
 			"alergens",
 			"aditives",
 			"isVegan",
@@ -103,7 +130,9 @@ class ItemSerializer(serializers.ModelSerializer):
 			"nutriValues",
 			"isAvailable"
 		]
-
+	def get_photo(self, obj):
+		return obj.b2StorageFile.name
+	
 	def create(self, validated_data):
 		filename = validated_data["b2StorageFile"].name
 		if( re.search("^(?!.*\.\.)[\w-]+\.(svg|jpe?g|png|gif|bmp)$", filename) == False):
@@ -305,3 +334,27 @@ class ReviewViewSet(viewsets.ModelViewSet):
 	filterset_class = ReviewFilter
 	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	http_method_names = ['get', 'post', 'delete', 'put']
+
+class HomepageCardSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = HomepageCard
+		fields = [
+			"id",
+			"title",
+			"menu",
+			"size",
+			"b2StorageFile",
+			"text",
+			"active",
+			"links_to",
+			"created_at"
+		]
+
+@extend_schema(tags=["HomepageCard"])
+class HomepageCardViewSet(viewsets.ModelViewSet):
+	queryset = HomepageCard.objects.all().order_by("id")
+	serializer_class = HomepageCardSerializer
+	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+	http_method_names = ['get', 'post', 'delete', 'put']
+
+

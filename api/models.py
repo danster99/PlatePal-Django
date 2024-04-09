@@ -172,3 +172,40 @@ class Review(models.Model):
 
     def __str__(self):
         return self.menu.restaurant.name + "-reviewID-" + self.id
+    
+
+
+def upload_to_card(instance, filename):
+    restaurant_name = instance.menu.restaurant.name.lower().replace(" ", "_")
+    menu_id = instance.menu.id
+    name = instance.title.lower().replace(" ", "_")
+    filename = (
+        f"{restaurant_name}/{menu_id}/{name}.{filename.split('.')[-1]}"
+    )
+    return f"homepage_cards/{filename}"
+
+card_size = (
+    ("s", "S"),
+    ("m", "M"),
+    ("l", "L"),
+    ("xl", "XL"),
+)
+
+class HomepageCard(models.Model):
+    title = models.CharField(max_length=100, null=False, blank=False)
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, default=-1)
+    size = models.CharField(choices=card_size, null=False, blank=False)
+    image = models.FileField(
+        name="b2StorageFile",
+        upload_to=upload_to_card,
+        verbose_name="B2 Storage File",
+        storage=default_storage,  # type: ignore
+        blank=True,
+    )
+    text = models.TextField(null=True, blank=True)
+    active = models.BooleanField(default=True)
+    links_to = models.CharField(max_length=300, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
