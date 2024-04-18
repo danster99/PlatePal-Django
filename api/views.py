@@ -120,7 +120,7 @@ class ItemSerializer(serializers.ModelSerializer):
 			"price",
 			"category",
 			"description",
-			"photo",
+			"b2StorageFile",
 			"alergens",
 			"aditives",
 			"isVegan",
