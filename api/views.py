@@ -111,7 +111,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
 
 class ItemSerializer(serializers.ModelSerializer):
-	photo = serializers.SerializerMethodField()
+	b2StorageFile = serializers.SerializerMethodField()
 	class Meta:
 		model = Item
 		fields = [
