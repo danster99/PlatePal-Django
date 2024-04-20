@@ -174,10 +174,18 @@ class Review(models.Model):
         return self.menu.restaurant.name + "-reviewID-" + self.id
     
 
+class HopmePageRow(models.Model):
+    title = models.CharField(max_length=100, null=False, blank=False)
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, default=-1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.name
+    
 def upload_to_card(instance, filename):
-    restaurant_name = instance.menu.restaurant.name.lower().replace(" ", "_")
-    menu_id = instance.menu.id
+    restaurant_name = instance.row.menu.restaurant.name.lower().replace(" ", "_")
+    menu_id = instance.row.menu.id
     name = instance.title.lower().replace(" ", "_")
     filename = (
         f"{restaurant_name}/{menu_id}/{name}.{filename.split('.')[-1]}"
@@ -193,7 +201,7 @@ card_size = (
 
 class HomepageCard(models.Model):
     title = models.CharField(max_length=100, null=False, blank=False)
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, default=-1)
+    row = models.ForeignKey(HopmePageRow, on_delete=models.CASCADE, default=-1)
     size = models.CharField(choices=card_size, null=False, blank=False)
     image = models.FileField(
         name="b2StorageFile",
@@ -209,3 +217,5 @@ class HomepageCard(models.Model):
 
     def __str__(self):
         return self.title
+    
+

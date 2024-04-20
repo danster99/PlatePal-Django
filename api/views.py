@@ -3,7 +3,7 @@ from django.forms import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, permissions
-from api.models import Category, Restaurant, Menu, Item, Order, Cart, Story, Table, Review, HomepageCard
+from api.models import Category, Restaurant, Menu, Item, Order, Cart, Story, Table, Review, HomepageCard, HopmePageRow
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 import re
@@ -83,9 +83,16 @@ class MenuViewSet(viewsets.ModelViewSet):
 	
 	@action(methods=['get'], detail=True, url_path='homepageCards', url_name='homepage_cards')
 	def get_homepage_cards(self, request, pk=None):
-		obj = HomepageCard.objects.filter(menu=Menu.objects.get(pk=pk))
-		serializer = HomepageCardSerializer(obj, many=True)
-		return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+		response = dict()
+		rows = HopmePageRow.objects.filter(menu = pk)
+		for row in rows:
+			row.cards = HomepageCard.objects.filter(row=row)
+			serializer = HomepageCardSerializer(row.cards, many=True)
+			response[row.title] = serializer.data
+		return HttpResponse(json.dumps(response), content_type="application/json")
+		# obj = HomepageCard.objects.filter(menu=Menu.objects.get(pk=pk))
+		# serializer = HomepageCardSerializer(obj, many=True)
+		# return HttpResponse(json.dumps(serializer.data), content_type="application/json")
 
 class CategorySerializer(serializers.ModelSerializer):
 	class Meta:
@@ -340,7 +347,7 @@ class HomepageCardSerializer(serializers.ModelSerializer):
 		fields = [
 			"id",
 			"title",
-			"menu",
+			"row",
 			"size",
 			"b2StorageFile",
 			"text",
@@ -355,5 +362,24 @@ class HomepageCardViewSet(viewsets.ModelViewSet):
 	serializer_class = HomepageCardSerializer
 	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	http_method_names = ['get', 'post', 'delete', 'put']
+	
+class HopmePageRowSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = HopmePageRow
+		fields = [
+			"id",
+			"title",
+			"menu",
+			"created_at",
+			"updated_at"
+		]
+
+@extend_schema(tags=["HopmePageRow"])
+class HopmePageRowViewSet(viewsets.ModelViewSet):
+	queryset = HopmePageRow.objects.all().order_by("id")
+	serializer_class = HopmePageRowSerializer
+	#permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+	http_method_names = ['get', 'post', 'delete', 'put']
+
 
 
