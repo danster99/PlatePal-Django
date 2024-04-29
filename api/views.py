@@ -70,12 +70,14 @@ class MenuViewSet(viewsets.ModelViewSet):
 		for category in categories:
 			if category.isFood:
 				items = Item.objects.filter(category=category)
-				serializer = ItemSerializer(items, many=True)
-				food[category.name] = serializer.data
+				if items.count() > 0:
+					serializer = ItemSerializer(items, many=True)
+					food[category.name] = serializer.data
 			else:
 				items = Item.objects.filter(category=category)
-				serializer = ItemSerializer(items, many=True)
-				drinks[category.name] = serializer.data
+				if items.count() > 0:
+					serializer = ItemSerializer(items, many=True)
+					drinks[category.name] = serializer.data
 		response["food"] = food
 		response["drinks"] = drinks
 		serializer = ItemSerializer(items, many=True)
