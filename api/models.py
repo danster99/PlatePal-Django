@@ -61,10 +61,10 @@ def upload_to(instance, filename):
 
 
 class Item(models.Model):
-    name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=5, decimal_places=2)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    description = models.TextField()
+    name = models.CharField(max_length=100, blank=True)
+    price = models.DecimalField(max_digits=5, decimal_places=2, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True)
+    description = models.TextField(blank=True)
     photo = models.FileField(
         name="b2StorageFile",
         upload_to=upload_to,
