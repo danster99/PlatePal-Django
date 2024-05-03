@@ -33,6 +33,7 @@ CORS_ALLOWED_ORIGINS = (
     'http://localhost:3000',
     'https://admin.platepal.eu',
     'https://menu.platepal.eu',
+    'https://backend.platepal.eu'
 )
 
 SESSION_COOKIE_SAMESITE = None
@@ -43,9 +44,9 @@ CSRF_COOKIE_SECURE = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost', 'admin.platepal.eu', 'menu.platepal.eu']
+ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost', 'backend.platepal.eu', 'menu.platepal.eu']
 
-CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com', 'http://localhost:3000', 'https://admin.platepal.eu', 'https://menu.platepal.eu']
+CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com', 'http://localhost:3000', 'https://admin.platepal.eu', 'https://menu.platepal.eu', 'https://backend.platepal.eu']
 
 
 # Application definition
