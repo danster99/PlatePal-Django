@@ -7,7 +7,7 @@ Django==4.2
 django-compat==1.0.15
 django-cors-headers==4.2.0
 django-db-connection-pool==1.2.4
-django-hijack==3.0.0
+django-filter==24.2
 django-multiselectfield==0.1.12
 django-storages==1.13.2
 djangorestframework==3.14.0
@@ -31,4 +31,3 @@ sqlparse==0.4.4
 typing_extensions==4.7.1
 uritemplate==4.1.1
 urllib3==1.26.16
-django-filter==24.2

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from api.views import CategoryViewSet, MenuViewSet, RestaurantViewSet, ItemViewSet, OrderViewSet, TableViewSet, CartViewSet, StoryViewSet, ReviewViewSet, HomepageCardViewSet, HopmePageRowViewSet
+from api.views import CategoryViewSet, MenuViewSet, RestaurantViewSet, ItemViewSet, OrderViewSet, TableViewSet, CartViewSet, StoryViewSet, ReviewViewSet, HomepageCardViewSet, HopmePageRowViewSet, UserViewSet
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework import routers
 
@@ -32,6 +32,7 @@ router.register(r'story', StoryViewSet)
 router.register(r'review', ReviewViewSet)
 router.register(r'homepage-card', HomepageCardViewSet)
 router.register(r'homepage-row', HopmePageRowViewSet)
+router.register(r'user', UserViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,5 +41,4 @@ urlpatterns = [
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path('hijack/', include('hijack.urls')),
 ]

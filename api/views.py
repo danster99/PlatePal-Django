@@ -1,6 +1,10 @@
+import base64
 import json
 from django.forms import model_to_dict
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, permissions
 from api.models import (
@@ -203,6 +207,16 @@ class ItemViewSet(viewsets.ModelViewSet):
     serializer_class = ItemSerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "delete", "put"]
+    
+    def get_permissions(self):
+        if self.request.method in ['POST', 'PUT']:
+            try:
+                user = User.objects.get(username=self.request.user)
+            except  User.DoesNotExist:
+                user = None
+            print(user)
+            self.permission_classes = [permissions.IsAuthenticated,]
+        return super(ItemViewSet, self).get_permissions()
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -452,3 +466,66 @@ class HopmePageRowViewSet(viewsets.ModelViewSet):
     serializer_class = HopmePageRowSerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "delete", "put"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "is_staff"]
+
+@extend_schema(tags=["User"])
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by("id")
+    serializer_class = UserSerializer
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    http_method_names = ["get", "post"]
+
+    @action(methods=["get"], detail=False, url_path="me", url_name="me")
+    def get_self(self, request):
+            try:
+                user = get_object_or_404(User, username=request.user)
+            except User.DoesNotExist:
+                user = None
+            response = json.dumps({
+                "id": user.id,
+                "email":user.email,
+                "username": user.username
+                }, default=str)
+            return HttpResponse(response, content_type="application/json")
+    
+    @action(methods=["post"], detail=False, url_path="login", url_name="login")
+    def login(self, request):
+        password = request.data["password"] 
+        print(password)
+        if "username" in request.data:
+            username = request.data["username"]
+        elif "email" in request.data:
+            email = request.data["email"]
+            username = get_object_or_404(User, email=email).username
+        else:
+            return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            response = json.dumps({
+                "id": user.id,
+                "email":user.email,
+                "username": user.username
+            }, default=str)
+            return HttpResponse(response, content_type="application/json")
+        else:
+            return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json", status=401)
+        
+    # @action(methods=["post"], detail=False, url_path="register", url_name="register")
+    # def register(self, request):
+    #     username = request.data["username"]
+    #     email = request.data["email"]
+    #     password = request.data["password"]
+    #     user = User.objects.create_user(username, email, password)
+    #     user.save()
+    #     return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+    
+    @action(methods=["post"], detail=False, url_path="logout", url_name="logout")
+    def logout(self, request):
+        logout(request)
+        return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
