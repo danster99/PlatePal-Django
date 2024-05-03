@@ -29,6 +29,7 @@ SECRET_KEY = 'django-insecure-600#z0+x_1z_!6ki*-h7xf#t71%%1^i7m0q4wxm21!ign%5&25
 DEBUG = True
 
 CORS_ALLOWED_ORIGINS = (
+    'plate-pal-97cd0667892d.herokuapp.com',
     'http://localhost:3000',
     'https://admin.platepal.eu',
     'https://menu.platepal.eu',
@@ -36,9 +37,9 @@ CORS_ALLOWED_ORIGINS = (
 
 CORS_ALLOW_CREDENTIALS = True
 
-ALLOWED_HOSTS = ['localhost', 'admin.platepal.eu', 'menu.platepal.eu']
+ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost', 'admin.platepal.eu', 'menu.platepal.eu']
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'https://admin.platepal.eu', 'https://menu.platepal.eu']
+CSRF_TRUSTED_ORIGINS = ['plate-pal-97cd0667892d.herokuapp.com', 'http://localhost:3000', 'https://admin.platepal.eu', 'https://menu.platepal.eu']
 
 
 # Application definition
