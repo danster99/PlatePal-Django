@@ -35,6 +35,12 @@ CORS_ALLOWED_ORIGINS = (
     'https://menu.platepal.eu',
 )
 
+SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = None
+
+ESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 CORS_ALLOW_CREDENTIALS = True
 
 ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost', 'admin.platepal.eu', 'menu.platepal.eu']
