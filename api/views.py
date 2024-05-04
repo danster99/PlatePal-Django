@@ -491,7 +491,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
     def check_user(self, validated_data):
         username = validated_data["username"]
         password = validated_data["password"]
-        print("username: ", username, "password: ", password)
         user = authenticate(username=username, password=password)
         if not user:
             raise serializers.ValidationError("Invalid email or password")
@@ -508,7 +507,15 @@ class UserLogin(APIView):
         if serializer.is_valid():
             user = serializer.check_user(data)
             login(request, user)
-            return HttpResponse(serializer.data, content_type="application/json")
+            retUser = User.objects.get(username=user)
+            response = json.dumps({
+                "id": retUser.id, 
+                "email": retUser.email, 
+                "username": retUser.username,
+                "firstName": retUser.first_name,
+                "lastName": retUser.last_name,
+                "isStaff": retUser.is_staff}, default=str)
+            return HttpResponse(response, content_type="application/json") 
         
 class UserLogout(APIView):
     authentication_classes = []
