@@ -1,5 +1,9 @@
 import base64
 import json
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication
+from .validations import validate_email, validate_password, validate_username
 from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -27,6 +31,7 @@ from django.db import transaction
 from datetime import datetime
 from django.db import connection
 import django_filters as filters
+from rest_framework import status
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
@@ -473,62 +478,98 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "username", "email", "is_staff"]
 
-@extend_schema(tags=["User"])
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by("id")
-    serializer_class = UserSerializer
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    http_method_names = ["get", "post"]
+class UserLoginSerializer(serializers.ModelSerializer):
 
-    @action(methods=["get"], detail=False, url_path="me", url_name="me")
-    def get_self(self, request):
-            try:
-                user = get_object_or_404(User, username=request.user)
-            except User.DoesNotExist:
-                user = None
-            if user is None and request.user.is_authenticated:
-                response = json.dumps({
-                    "id": user.id,
-                    "email":user.email,
-                    "username": user.username
-                    }, default=str)
-                return HttpResponse(response, content_type="application/json")
-            else:
-                return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json", status=401)
+    class Meta:
+        model = User
+        fields = ["username", "password"]
+
+    username = serializers.CharField(required=False)
+    password = serializers.CharField(required=True)
+
+    def check_user(self, validated_data):
+        username = validated_data["username"]
+        password = validated_data["password"]
+        print("username: ", username, "password: ", password)
+        user = authenticate(username=username, password=password)
+        if not user:
+            raise serializers.ValidationError("Invalid email or password")
+        return user
     
-    @action(methods=["post"], detail=False, url_path="login", url_name="login")
-    def login(self, request):
-        password = request.data["password"] 
-        print(password)
-        if "username" in request.data:
-            username = request.data["username"]
-        elif "email" in request.data:
-            email = request.data["email"]
-            username = get_object_or_404(User, email=email).username
-        else:
-            return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
+class UserLogin(APIView):
+    authentication_classes = [SessionAuthentication]
+    serializer_class = UserLoginSerializer
+    def post(self, request):
+        data = request.data
+        assert validate_username(data) 
+        assert validate_password(data)
+        serializer = UserLoginSerializer(data=data)
+        if serializer.is_valid():
+            user = serializer.check_user(data)
             login(request, user)
-            response = json.dumps({
-                "id": user.id,
-                "email":user.email,
-                "username": user.username
-            }, default=str)
-            return HttpResponse(response, content_type="application/json")
-        else:
-            return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json", status=401)
+            return HttpResponse(serializer.data, content_type="application/json")
         
-    # @action(methods=["post"], detail=False, url_path="register", url_name="register")
-    # def register(self, request):
-    #     username = request.data["username"]
-    #     email = request.data["email"]
-    #     password = request.data["password"]
-    #     user = User.objects.create_user(username, email, password)
-    #     user.save()
-    #     return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
-    
-    @action(methods=["post"], detail=False, url_path="logout", url_name="logout")
-    def logout(self, request):
+class UserLogout(APIView):
+    def post(self, request):
         logout(request)
-        return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+        return Response(status=status.HTTP_200_OK)
+    
+class UserMe(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+
+# @extend_schema(tags=["User"])
+# class UserViewSet(viewsets.ModelViewSet):
+#     queryset = User.objects.all().order_by("id")
+#     serializer_class = UserSerializer
+#     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+#     http_method_names = ["get", "post"]
+
+#     @action(methods=["get"], detail=False, url_path="me", url_name="me")
+#     def get_self(self, request):
+#             try:
+#                 user = get_object_or_404(User, username=request.user)
+#             except User.DoesNotExist:
+#                 user = None
+#             if user is None and request.user.is_authenticated:
+#                 response = json.dumps({
+#                     "id": user.id,
+#                     "email":user.email,
+#                     "username": user.username
+#                     }, default=str)
+#                 return HttpResponse(response, content_type="application/json")
+#             else:
+#                 return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json", status=401)
+    
+#     @action(methods=["post"], detail=False, url_path="login", url_name="login")
+#     def login(self, request):
+#         password = request.data["password"] 
+#         print(password)
+#         if "username" in request.data:
+#             username = request.data["username"]
+#         elif "email" in request.data:
+#             email = request.data["email"]
+#             username = get_object_or_404(User, email=email).username
+#         else:
+#             return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json")
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None:
+#             login(request, user)
+#             response = json.dumps({
+#                 "id": user.id,
+#                 "email":user.email,
+#                 "username": user.username
+#             }, default=str)
+#             return HttpResponse(response, content_type="application/json")
+#         else:
+#             return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json", status=401)
+
+    
+    # @action(methods=["post"], detail=False, url_path="logout", url_name="logout")
+    # def logout(self, request):
+    #     logout(request)
+    #     return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
