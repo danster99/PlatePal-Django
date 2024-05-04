@@ -32,6 +32,7 @@ from datetime import datetime
 from django.db import connection
 import django_filters as filters
 from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
@@ -510,6 +511,7 @@ class UserLogin(APIView):
             return HttpResponse(serializer.data, content_type="application/json")
         
 class UserLogout(APIView):
+    @csrf_exempt
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)
