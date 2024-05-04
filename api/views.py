@@ -511,7 +511,7 @@ class UserLogin(APIView):
             return HttpResponse(serializer.data, content_type="application/json")
         
 class UserLogout(APIView):
-    @csrf_exempt
+    authentication_classes = []
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)
