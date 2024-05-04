@@ -486,12 +486,15 @@ class UserViewSet(viewsets.ModelViewSet):
                 user = get_object_or_404(User, username=request.user)
             except User.DoesNotExist:
                 user = None
-            response = json.dumps({
-                "id": user.id,
-                "email":user.email,
-                "username": user.username
-                }, default=str)
-            return HttpResponse(response, content_type="application/json")
+            if user is None and request.user.is_authenticated:
+                response = json.dumps({
+                    "id": user.id,
+                    "email":user.email,
+                    "username": user.username
+                    }, default=str)
+                return HttpResponse(response, content_type="application/json")
+            else:
+                return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json", status=401)
     
     @action(methods=["post"], detail=False, url_path="login", url_name="login")
     def login(self, request):
