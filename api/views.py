@@ -75,7 +75,7 @@ class MenuViewSet(viewsets.ModelViewSet):
     @action(methods=["get"], detail=True, url_path="categories", url_name="categories")
     def get_catgories(self, request, pk=None):
         obj = Category.objects.filter(menu=Menu.objects.get(pk=pk))
-        serializer = CategorySerializer(obj, many=True)
+        serializer = CategorySerializerTotalItems(obj, many=True)
         connection.close()
         return HttpResponse(
             json.dumps(serializer.data), content_type="application/json"
@@ -160,13 +160,28 @@ class CategorySerializer(serializers.ModelSerializer):
             "isFood",
         ]
 
+class CategorySerializerTotalItems(serializers.ModelSerializer):
+    totalItems = serializers.SerializerMethodField()
+    def get_totalItems(self, obj):
+        return Item.objects.filter(category=obj).count()
+    class Meta:
+        model = Category
+        fields = [
+            "id",
+            "name",
+            "menu",
+            "isFood",
+            "totalItems"
+        ]
+
+
 
 @extend_schema(tags=["Category"])
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by("id")
     serializer_class = CategorySerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    http_method_names = ["get", "post", "delete"]
+    http_method_names = ["get", "put", "post", "delete"]
 
     @action(methods=["get"], detail=True, url_path="items", url_name="items")
     def get_items(self, request, pk=None):
@@ -500,22 +515,25 @@ class UserLogin(APIView):
     authentication_classes = [SessionAuthentication]
     serializer_class = UserLoginSerializer
     def post(self, request):
-        data = request.data
-        assert validate_username(data) 
-        assert validate_password(data)
-        serializer = UserLoginSerializer(data=data)
-        if serializer.is_valid():
-            user = serializer.check_user(data)
-            login(request, user)
-            retUser = User.objects.get(username=user)
-            response = json.dumps({
-                "id": retUser.id, 
-                "email": retUser.email, 
-                "username": retUser.username,
-                "firstName": retUser.first_name,
-                "lastName": retUser.last_name,
-                "isStaff": retUser.is_staff}, default=str)
-            return HttpResponse(response, content_type="application/json") 
+        try:
+            data = request.data
+            assert validate_username(data) 
+            assert validate_password(data)
+            serializer = UserLoginSerializer(data=data)
+            if serializer.is_valid():
+                user = serializer.check_user(data)
+                login(request, user)
+                retUser = User.objects.get(username=user)
+                response = json.dumps({
+                    "id": retUser.id, 
+                    "email": retUser.email, 
+                    "username": retUser.username,
+                    "firstName": retUser.first_name,
+                    "lastName": retUser.last_name,
+                    "isStaff": retUser.is_staff}, default=str)
+                return HttpResponse(response, content_type="application/json") 
+        except:
+            return HttpResponse(status=403)
         
 class UserLogout(APIView):
     authentication_classes = []

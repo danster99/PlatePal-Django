@@ -44,9 +44,6 @@ CSRF_COOKIE_SAMESITE = None
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-CSRF_COOKIE_NAME = "csrftoken"
-CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"
-
 ALLOWED_HOSTS = ['plate-pal-97cd0667892d.herokuapp.com', 'localhost', 'backend.platepal.eu', 'menu.platepal.eu']
 
 CSRF_TRUSTED_ORIGINS = ['https://plate-pal-97cd0667892d.herokuapp.com', 'http://localhost:3000', 'https://admin.platepal.eu', 'https://menu.platepal.eu', 'https://backend.platepal.eu']
