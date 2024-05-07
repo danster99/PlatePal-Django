@@ -28,6 +28,8 @@ SECRET_KEY = 'django-insecure-600#z0+x_1z_!6ki*-h7xf#t71%%1^i7m0q4wxm21!ign%5&25
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+PRODUCTION = os.environ.get('PRODUCTION', False)
+
 CORS_ALLOWED_ORIGINS = (
     'https://plate-pal-97cd0667892d.herokuapp.com',
     'http://localhost:3000',
@@ -35,6 +37,11 @@ CORS_ALLOWED_ORIGINS = (
     'https://menu.platepal.eu',
     'https://backend.platepal.eu'
 )
+
+
+if PRODUCTION:
+    SESSION_COOKIE_DOMAIN = '.platepal.eu'
+    CSRF_COOKIE_DOMAIN = '.platepal.eu'
 
 CORS_ALLOW_CREDENTIALS = True
 
