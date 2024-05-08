@@ -139,9 +139,9 @@ class MenuViewSet(viewsets.ModelViewSet):
     )
     def get_homepage_cards(self, request, pk=None):
         response = dict()
-        rows = HopmePageRow.objects.filter(menu=pk)
+        rows = HopmePageRow.objects.filter(menu=pk).order_by("order")
         for row in rows:
-            row.cards = HomepageCard.objects.filter(row=row)
+            row.cards = HomepageCard.objects.filter(row=row).order_by("order")
             serializer = HomepageCardSerializer(row.cards, many=True)
             response[row.title] = serializer.data
         return HttpResponse(json.dumps(response), content_type="application/json")
@@ -458,9 +458,9 @@ class HomepageCardSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "row",
+            "order",
             "size",
             "b2StorageFile",
-            "text",
             "active",
             "links_to",
             "created_at",
@@ -478,7 +478,7 @@ class HomepageCardViewSet(viewsets.ModelViewSet):
 class HopmePageRowSerializer(serializers.ModelSerializer):
     class Meta:
         model = HopmePageRow
-        fields = ["id", "title", "menu", "created_at", "updated_at"]
+        fields = ["id", "title", "menu", "created_at", "updated_at", "order"]
 
 
 @extend_schema(tags=["HopmePageRow"])

@@ -177,6 +177,7 @@ class Review(models.Model):
 class HopmePageRow(models.Model):
     title = models.CharField(max_length=100, null=False, blank=False)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, default=-1)
+    order = models.IntegerField(null=False, blank=False, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -203,14 +204,14 @@ class HomepageCard(models.Model):
     title = models.CharField(max_length=100, null=False, blank=False)
     row = models.ForeignKey(HopmePageRow, on_delete=models.CASCADE, default=-1)
     size = models.CharField(choices=card_size, null=False, blank=False)
-    image = models.FileField(
+    photo = models.FileField(
         name="b2StorageFile",
         upload_to=upload_to_card,
         verbose_name="B2 Storage File",
         storage=default_storage,  # type: ignore
         blank=True,
     )
-    text = models.TextField(null=True, blank=True)
+    order= models.IntegerField(null=False, blank=False, default=0)
     active = models.BooleanField(default=True)
     links_to = models.CharField(max_length=300, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
