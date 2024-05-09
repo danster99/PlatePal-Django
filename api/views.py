@@ -112,7 +112,7 @@ class MenuViewSet(viewsets.ModelViewSet):
 
     @action(methods=["get"], detail=True, url_path="stories", url_name="stories")
     def get_stories(self, request, pk=None):
-        obj = Story.objects.filter(menu=Menu.objects.get(pk=pk))
+        obj = Story.objects.filter(menu=Menu.objects.get(pk=pk)).order_by("id")
         serializer = StorySerializer(obj, many=True)
         return HttpResponse(
             json.dumps(serializer.data), content_type="application/json"
