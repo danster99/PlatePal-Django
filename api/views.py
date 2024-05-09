@@ -12,6 +12,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, permissions
 from api.models import (
+    Profile,
     Category,
     Restaurant,
     Menu,
@@ -24,7 +25,8 @@ from api.models import (
     HomepageCard,
     HopmePageRow,
 )
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.decorators import action
 import re
 from django.db import transaction
@@ -34,6 +36,29 @@ import django_filters as filters
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 
+
+class MenuIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Menu
+        fields = ["id"]
+class ProfileSerializer(serializers.ModelSerializer):
+    menus = serializers.SerializerMethodField()
+    
+    @extend_schema_field(OpenApiTypes.OBJECT)
+    def get_menus(self, obj):
+        menus = Menu.objects.filter(restaurant=obj.restaurant)
+        serializer = MenuIdSerializer(menus, many=True)
+        return serializer.data
+    class Meta:
+        model = Profile
+        fields = ["id", "user", "restaurant", "menus"]
+
+@extend_schema(tags=["Profile"])
+class ProfileViewSet(viewsets.ModelViewSet):
+    queryset = Profile.objects.all().order_by("id")
+    serializer_class = ProfileSerializer
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    http_method_names = ["get", "post", "delete", "put"]
 
 class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -551,7 +576,11 @@ class UserMe(APIView):
 
     def get(self, request):
         serializer = UserSerializer(request.user)
-        return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+        response = {}
+        response["profile"] = ProfileSerializer(Profile.objects.get(user=request.user)).data
+        response["profile"]["user"] = serializer.data
+        print(response)
+        return HttpResponse(json.dumps(response["profile"]), content_type="application/json")
 
 # @extend_schema(tags=["User"])
 # class UserViewSet(viewsets.ModelViewSet):

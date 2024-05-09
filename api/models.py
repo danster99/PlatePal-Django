@@ -2,7 +2,16 @@ from datetime import datetime
 from django.db import models
 from django.core.files.storage import default_storage
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.auth.models import User
 
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey("Restaurant", on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
 
 FEATURES = (
     (1, "Core"),
@@ -197,7 +206,7 @@ class HopmePageRow(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.title
     
 def upload_to_card(instance, filename):
     restaurant_name = instance.row.menu.restaurant.name.lower().replace(" ", "_")
