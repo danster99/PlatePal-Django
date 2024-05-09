@@ -62,6 +62,10 @@ class MenuSerializer(serializers.ModelSerializer):
             "id",
             "restaurant",
             "features",
+            "primary",
+            "secondary",
+            "font",
+            "b2StorageFile",
         ]
 
 
@@ -70,7 +74,7 @@ class MenuViewSet(viewsets.ModelViewSet):
     queryset = Menu.objects.all().order_by("id")
     serializer_class = MenuSerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    http_method_names = ["get", "post", "delete"]
+    http_method_names = ["get", "put", "post", "delete"]
 
     @action(methods=["get"], detail=True, url_path="categories", url_name="categories")
     def get_catgories(self, request, pk=None):

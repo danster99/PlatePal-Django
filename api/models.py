@@ -32,10 +32,25 @@ class Restaurant(models.Model):
     def __str__(self):
         return self.name
 
+def upload_background_to(instance, filename):
+    restaurant_name = instance.restaurant.name.lower().replace(" ", "_")
+    filename = f"{restaurant_name}/background.{filename.split('.')[-1]}"
+    return f"uploads/{filename}"
 
 class Menu(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     features = ArrayField(models.IntegerField(), default=list, size=6)
+    primary = models.CharField(max_length=100, null=False, blank=True, default="#f5c636")
+    secondary = models.CharField(max_length=100, null=False, blank=True, default="#f5c636")
+    font = models.CharField(max_length=100, null=True, blank=True)
+    backgroundImage = models.FileField(
+        name="b2StorageFile",
+        upload_to=upload_background_to,
+        verbose_name="B2 Storage File",
+        storage=default_storage,  # type: ignore
+        default="https://f004.backblazeb2.com/file/platepal/background.png",
+        blank=True,
+    )
 
     def __str__(self):
         return self.restaurant.name
