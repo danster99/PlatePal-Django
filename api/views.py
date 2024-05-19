@@ -24,6 +24,7 @@ from api.models import (
     Review,
     HomepageCard,
     HopmePageRow,
+    Complaint,
 )
 from drf_spectacular.utils import extend_schema, extend_schema_field
 from drf_spectacular.types import OpenApiTypes
@@ -177,6 +178,14 @@ class MenuViewSet(viewsets.ModelViewSet):
         # obj = HomepageCard.objects.filter(menu=Menu.objects.get(pk=pk))
         # serializer = HomepageCardSerializer(obj, many=True)
         # return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+
+    @action(methods=["get"], detail=True, url_path="complaints", url_name="complaints")
+    def get_complaints(self, request, pk=None):
+        obj = Complaint.objects.filter(menu=Menu.objects.get(pk=pk))
+        serializer = ComplaintSerializer(obj, many=True)
+        return HttpResponse(
+            json.dumps(serializer.data), content_type="application/json"
+        )
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -582,54 +591,14 @@ class UserMe(APIView):
         print(response)
         return HttpResponse(json.dumps(response["profile"]), content_type="application/json")
 
-# @extend_schema(tags=["User"])
-# class UserViewSet(viewsets.ModelViewSet):
-#     queryset = User.objects.all().order_by("id")
-#     serializer_class = UserSerializer
-#     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-#     http_method_names = ["get", "post"]
+class ComplaintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Complaint
+        fields = ["id", "menu", "table", "title", "description", "created_at"]
 
-#     @action(methods=["get"], detail=False, url_path="me", url_name="me")
-#     def get_self(self, request):
-#             try:
-#                 user = get_object_or_404(User, username=request.user)
-#             except User.DoesNotExist:
-#                 user = None
-#             if user is None and request.user.is_authenticated:
-#                 response = json.dumps({
-#                     "id": user.id,
-#                     "email":user.email,
-#                     "username": user.username
-#                     }, default=str)
-#                 return HttpResponse(response, content_type="application/json")
-#             else:
-#                 return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json", status=401)
-    
-#     @action(methods=["post"], detail=False, url_path="login", url_name="login")
-#     def login(self, request):
-#         password = request.data["password"] 
-#         print(password)
-#         if "username" in request.data:
-#             username = request.data["username"]
-#         elif "email" in request.data:
-#             email = request.data["email"]
-#             username = get_object_or_404(User, email=email).username
-#         else:
-#             return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json")
-#         user = authenticate(request, username=username, password=password)
-#         if user is not None:
-#             login(request, user)
-#             response = json.dumps({
-#                 "id": user.id,
-#                 "email":user.email,
-#                 "username": user.username
-#             }, default=str)
-#             return HttpResponse(response, content_type="application/json")
-#         else:
-#             return HttpResponse(json.dumps({"status": "fail"}), content_type="application/json", status=401)
-
-    
-    # @action(methods=["post"], detail=False, url_path="logout", url_name="logout")
-    # def logout(self, request):
-    #     logout(request)
-    #     return HttpResponse(json.dumps({"status": "success"}), content_type="application/json")
+@extend_schema(tags=["Complaint"])
+class ComplaintViewSet(viewsets.ModelViewSet):
+    queryset = Complaint.objects.all().order_by("id")
+    serializer_class = ComplaintSerializer
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    http_method_names = ["get", "post", "delete", "put"]
