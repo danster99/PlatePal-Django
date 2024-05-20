@@ -37,10 +37,10 @@ def upload_logo_to(instance, filename):
 
 # Create your models here.
 class Restaurant(models.Model):
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=100)
-    phone = models.CharField(max_length=100)
-    website = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, blank=False)
+    address = models.CharField(max_length=100, blank=True)
+    phone = models.CharField(max_length=100, blank=True)
+    website = models.CharField(max_length=100, blank=True)
     logo = models.FileField(
         name="b2StorageFile",
         upload_to=upload_logo_to,
