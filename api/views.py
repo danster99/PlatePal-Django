@@ -70,6 +70,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
             "address",
             "phone",
             "website",
+            "b2StorageFile",
         ]
 
 
@@ -78,7 +79,7 @@ class RestaurantViewSet(viewsets.ModelViewSet):
     queryset = Restaurant.objects.all().order_by("id")
     serializer_class = RestaurantSerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    http_method_names = ["get", "post", "delete"]
+    http_method_names = ["get", "put", "post", "delete"]
 
 
 class MenuSerializer(serializers.ModelSerializer):

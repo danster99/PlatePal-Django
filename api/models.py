@@ -30,6 +30,10 @@ PAYMENT_METHODS = (
     ("GooglePay", "GooglePay"),
 )
 
+def upload_logo_to(instance, filename):
+    restaurant_name = instance.name.lower().replace(" ", "_")
+    filename = f"{restaurant_name}/logo.{filename.split('.')[-1]}"
+    return f"uploads/{filename}"
 
 # Create your models here.
 class Restaurant(models.Model):
@@ -37,6 +41,15 @@ class Restaurant(models.Model):
     address = models.CharField(max_length=100)
     phone = models.CharField(max_length=100)
     website = models.CharField(max_length=100)
+    logo = models.FileField(
+        name="b2StorageFile",
+        upload_to=upload_logo_to,
+        verbose_name="B2 Storage File",
+        storage=default_storage,  # type: ignore
+        default=None,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.name
