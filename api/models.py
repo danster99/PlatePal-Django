@@ -81,6 +81,7 @@ class Menu(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=100)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    order = models.IntegerField(default=0)
     isFood = models.BooleanField(default=True)
 
     def __str__(self):
@@ -109,6 +110,7 @@ class Item(models.Model):
         storage=default_storage,  # type: ignore
         blank=True,
     )
+    order = models.IntegerField(default=0)
     alergens = models.TextField(null=True, blank=True)
     aditives = models.TextField(null=True, blank=True)
     isVegan = models.BooleanField(default=False)

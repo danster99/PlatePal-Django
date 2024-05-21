@@ -196,6 +196,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "id",
             "name",
             "menu",
+            "order",
             "isFood",
         ]
 
@@ -209,6 +210,7 @@ class CategorySerializerTotalItems(serializers.ModelSerializer):
             "id",
             "name",
             "menu",
+            "order",
             "isFood",
             "totalItems"
         ]
@@ -217,7 +219,7 @@ class CategorySerializerTotalItems(serializers.ModelSerializer):
 
 @extend_schema(tags=["Category"])
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all().order_by("id")
+    queryset = Category.objects.all().order_by("order")
     serializer_class = CategorySerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "put", "post", "delete"]
@@ -239,6 +241,7 @@ class ItemSerializer(serializers.ModelSerializer):
             "name",
             "price",
             "category",
+            "order",
             "description",
             "b2StorageFile",
             "alergens",
@@ -263,7 +266,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 @extend_schema(tags=["Item"])
 class ItemViewSet(viewsets.ModelViewSet):
-    queryset = Item.objects.all().order_by("id")
+    queryset = Item.objects.all().order_by("order")
     serializer_class = ItemSerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "delete", "put"]
@@ -453,7 +456,7 @@ class StorySerializer(serializers.ModelSerializer):
 
 @extend_schema(tags=["Story"])
 class StoryViewSet(viewsets.ModelViewSet):
-    queryset = Story.objects.all().order_by("id")
+    queryset = Story.objects.all().order_by("created_at")
     serializer_class = StorySerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "delete", "put"]
