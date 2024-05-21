@@ -105,7 +105,7 @@ class MenuViewSet(viewsets.ModelViewSet):
 
     @action(methods=["get"], detail=True, url_path="categories", url_name="categories")
     def get_catgories(self, request, pk=None):
-        obj = Category.objects.filter(menu=Menu.objects.get(pk=pk))
+        obj = Category.objects.filter(menu=Menu.objects.get(pk=pk)).order_by("order")
         serializer = CategorySerializerTotalItems(obj, many=True)
         connection.close()
         return HttpResponse(
@@ -114,7 +114,7 @@ class MenuViewSet(viewsets.ModelViewSet):
 
     @action(methods=["get"], detail=True, url_path="stories", url_name="stories")
     def get_stories(self, request, pk=None):
-        obj = Story.objects.filter(menu=Menu.objects.get(pk=pk)).order_by("id")
+        obj = Story.objects.filter(menu=Menu.objects.get(pk=pk)).order_by("created_at")
         serializer = StorySerializer(obj, many=True)
         return HttpResponse(
             json.dumps(serializer.data), content_type="application/json"
@@ -125,7 +125,7 @@ class MenuViewSet(viewsets.ModelViewSet):
         response = dict()
         food = dict()
         drinks = dict()
-        categories = Category.objects.filter(menu=Menu.objects.get(pk=pk))
+        categories = Category.objects.filter(menu=Menu.objects.get(pk=pk)).order_by("order")
         for category in categories:
             if category.isFood:
                 items = Item.objects.filter(category=category)
