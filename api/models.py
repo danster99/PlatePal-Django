@@ -103,6 +103,7 @@ class Item(models.Model):
     price = models.DecimalField(max_digits=5, decimal_places=2, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True)
     description = models.TextField(blank=True)
+    ingredients = models.TextField(blank=True)
     photo = models.FileField(
         name="b2StorageFile",
         upload_to=upload_to,
@@ -110,6 +111,7 @@ class Item(models.Model):
         storage=default_storage,  # type: ignore
         blank=True,
     )
+    weight = models.IntegerField(default=0)
     order = models.IntegerField(default=0)
     alergens = models.TextField(null=True, blank=True)
     aditives = models.TextField(null=True, blank=True)

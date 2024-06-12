@@ -128,7 +128,7 @@ class MenuViewSet(viewsets.ModelViewSet):
         categories = Category.objects.filter(menu=Menu.objects.get(pk=pk)).order_by("order")
         for category in categories:
             if category.isFood:
-                items = Item.objects.filter(category=category)
+                items = Item.objects.filter(category=category).order_by("order")
                 if items.count() > 0:
                     serializer = ItemSerializer(items, many=True)
                     food[category.name] = serializer.data
@@ -243,6 +243,8 @@ class ItemSerializer(serializers.ModelSerializer):
             "category",
             "order",
             "description",
+            "ingredients",
+            "weight",
             "b2StorageFile",
             "alergens",
             "aditives",
