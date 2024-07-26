@@ -253,6 +253,7 @@ class ItemSerializer(serializers.ModelSerializer):
             "isGlutenFree",
             "spiceLvl",
             "nutriValues",
+            "nutriValuesLink",
             "isAvailable",
         ]
 

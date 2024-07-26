@@ -119,6 +119,7 @@ class Item(models.Model):
     isDairyFree = models.BooleanField(default=False)
     isGlutenFree = models.BooleanField(default=False)
     spiceLvl = models.IntegerField(default=0)
+    nutriValuesLink = models.CharField(max_length=300, null=True, blank=True)
     nutriValues = models.JSONField(null=True, blank=True)
     clicks24h = models.IntegerField(default=0)
     clicks7d = models.IntegerField(default=0)
